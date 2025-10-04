@@ -182,7 +182,7 @@ tree
 
 
 <details>
-<summary><strong>Expand: RTL Functional Validation</strong></summary>
+<summary><strong> RTL Functional Validation</strong></summary>
 
 
 ### Commands:
@@ -233,7 +233,7 @@ The simulation demonstrates that all SoC components are operational and properly
 
 
 <details>
-<summary><strong>Expand: Yosys Synthesis</strong></summary>
+<summary><strong> Yosys Synthesis</strong></summary>
   
 ## Sythesis of VSDbabysoc
 
