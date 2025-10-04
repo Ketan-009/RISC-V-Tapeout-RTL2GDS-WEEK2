@@ -61,7 +61,7 @@ A **System-on-Chip (SoC)** represents an integrated circuit that consolidates mu
 ---
 
 <details>
-<summary><strong> Practical Labs Implementation </strong></summary>
+<summary><strong>Part 2: Practical Labs Implementation </strong></summary>
 
 <details>
 <summary><strong> Preresiquisites </strong></summary>
