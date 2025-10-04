@@ -206,45 +206,90 @@ cd simulation
 gtkwave pre_synth_sim.vcd
 ```
 
-## Waveform
+## Waveforms
 
 <img width="1919" height="704" alt="image" src="https://github.com/user-attachments/assets/59bca4e8-276d-4280-9d54-43dea304e1f5" />
 
-## VSDBabySoC Waveform Analysis (Simulation Summary)
+## CPU Core
+<img width="1919" height="716" alt="image" src="https://github.com/user-attachments/assets/4a6ca1f1-c58a-4a80-a502-62f845bc0a16" />
 
-- **System Integration:** The waveform confirms successful integration of the RVMYTH RISC-V core, PLL, and DAC modules.
-- **Clocking:** The PLL generates stable clock signals (REF, VCO_IN) that correctly drive the processor.
-- **Reset Behavior:** The reset signal is inactive after initialization, allowing normal system operation.
-- **Data Flow:** The DAC OUT signal varies, indicating active data processing and instruction execution by the RISC-V core.
-- **Timing:** Clock domains are synchronized; reset sequence completes successfully.
+- Shows internal pipeline/control signals (decode fields, dmem addr/enables).
+- Continuous toggling ⇒ steady instruction issue, no stalls.
+- Confirms proper decode of funct3/funct7 and active memory access.
 
+## Top Level Waveform
 
-### Observations
-- PLL-derived clock stable
-- Reset released cleanly
-- Core executes code
-- DAC output toggles (driven digital proxy)
-- Inter-module connectivity valid
+<img width="1919" height="713" alt="image" src="https://github.com/user-attachments/assets/d3ea46dc-b836-40d1-86bc-4713e65b0bb0" />
 
-**Conclusion:**  
-The simulation demonstrates that all SoC components are operational and properly interfaced. The processor executes instructions and outputs results via the DAC, verifying correct system functionality.
+- `reset` inactive; system running.
+- `RV_TO_DAC[9:0]` presents descending sample codes (e.g., 0AB → 099 → 088 ...).
+- Confirms core → DAC bus connectivity under stable clock.
+
+## DAC Conversion Waveform
+
+<img width="1919" height="721" alt="image" src="https://github.com/user-attachments/assets/a418b4c7-cfe1-4dad-9664-6d7bb15f428e" />
+
+- `D[9:0]` codes map linearly to `OUT` (e.g., 0x0AB → ~0.167 of full-scale).
+- `VREFH=1`, `VREFL=0`; enable asserted.
+- Verifies ideal digital-to-analog scaling (OUT ≈ D/1023).
+
+## PLL Waveform
+
+<img width="1919" height="717" alt="image" src="https://github.com/user-attachments/assets/377a2475-8d7d-41ae-813c-105a8160c90a" />
+
+- Stable `CLK` with measured period ≈35.4 ns.
+- Reference period ≈283.3 ns ⇒ ~8× multiplication factor.
+- Low, steady period variation ⇒ locked condition.
+
+# BabySoC Simulation Analysis
+
+## 1. Reset Operation
+- Reset asserted, then deasserted cleanly.
+- While asserted: all observed data buses remain idle (zeros).
+- After deassertion: CPU pipeline activity begins (decode, memory enables, funct fields toggle).
+- `RV_TO_DAC / D[9:0]` starts updating with valid sample codes.
+- Conclusion: Reset sequencing and release are correct.
+
+## 2. Clocking
+- PLL enables `ENb_CP` and `ENb_VCO` held low (active) → PLL powered and engaged.
+- Stable `CLK` period ≈ 35.4 ns.
+- Reference period ≈ 283 ns → frequency multiplication ≈ 8×.
+- No visible jitter spikes or missing edges in captured window.
+- Conclusion: PLL locked and supplying a clean multiplied system clock.
+
+## 3. Dataflow Between Modules
+- Core shows continuous instruction execution (decode & memory addr/enables toggling).
+- Generated sample codes propagate onto `RV_TO_DAC[9:0]` / `D[9:0]`.
+- DAC output `OUT` scales proportionally (OUT ≈ D/1023 with VREFH=1, VREFL=0).
+- Consistent decreasing code sequence visible across core → top-level → DAC.
+- Conclusion: End-to-end data path (Core → Bus → DAC) functions correctly.
+
+## Overall Verification
+Reset behavior, clock generation, and inter-module dataflow are all validated and operating as intended.
 
 </details>
 
+</details>
 
-The comprehensive verification methodology for the BabySoC implementation has been successfully completed. Both pre-synthesis RTL and post-synthesis gate-level implementations have been validated for functional correctness. The verification process has produced a thoroughly tested gate-level netlist ready for physical design implementation.
+---
 
-**Key Achievements:**
-- Complete RTL functional verification with comprehensive test coverage
-- Successful logic synthesis with area and timing optimization
-- Gate-level simulation confirming functional equivalence
-- Robust verification methodology suitable for complex SoC designs
+# BabySoC Simulation Summary
 
-**Deliverables:**
-- Verified RTL implementation
-- Optimized gate-level netlist
-- Comprehensive verification documentation
-- Reusable verification environment and methodology
+## Summary Table
+
+| Aspect | Key Signals / Fields | Core Observation | Conclusion |
+|--------|----------------------|------------------|------------|
+| Reset Operation | `reset`, `RV_TO_DAC[9:0]`, core decode & memory enables | Buses idle (0) while reset asserted; activity starts immediately after deassertion | Reset sequencing correct; system initializes cleanly |
+| Clocking | `CLK`, `REF`, `ENb_CP`, `ENb_VCO`, measured period (~35.4 ns), ref period (~283 ns) | PLL enables active-low; stable multiplied clock (~8× reference), no jitter spikes seen | PLL locked and supplying clean system clock |
+| Dataflow (Core → DAC) | Core pipeline signals, `RV_TO_DAC[9:0]` / `D[9:0]`, `OUT`, `VREFH=1`, `VREFL=0` | Sample codes generated in core propagate to DAC; `OUT ≈ D / 1023` (descending sequence matches digital values) | End‑to‑end path intact; DAC conversion linear and synchronized |
+
+## Key Takeaways
+- Reset works: no unintended transitions before release; immediate, valid post-reset activity.
+- Clock domain stable: PLL multiplies reference cleanly (≈8×) with consistent period.
+- Data integrity preserved: Values generated in the CPU arrive unchanged at the DAC input.
+- DAC behavior matches ideal formula: `OUT = (D / 1023) * (VREFH - VREFL)`.
+- No evidence of stalls, clock glitches, or bus contention in observed window.
+
 
 
 
