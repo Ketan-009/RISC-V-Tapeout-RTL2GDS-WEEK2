@@ -1,4 +1,4 @@
-# Day 2: SoC Design Verification Methodology (Pre-Synthesis & Post-Synthesis Validation)
+# Week 2: SoC Design Verification Methodology (Pre-Synthesis & Post-Synthesis Validation)
 
 This documentation outlines a comprehensive verification methodology for a basic RISC-V System-on-Chip implementation. The focus is on establishing robust verification flows for both Register Transfer Level (RTL) and Gate-Level implementations, ensuring functional correctness throughout the design process.
 
