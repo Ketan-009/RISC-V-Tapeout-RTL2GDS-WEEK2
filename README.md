@@ -54,6 +54,7 @@ A **System-on-Chip (SoC)** represents an integrated circuit that consolidates mu
 - **Domain-Specific SoCs**: Tailored for specialized applications requiring optimized performance characteristics.
 
 <img width="1300" height="1261" alt="image" src="https://github.com/user-attachments/assets/6d0a43f8-5037-4ea1-8c69-c7552f71ad90" />
+
 **Close-up view of a System-on-Chip (SoC) silicon die showing internal integrated circuit components and wire connections**
 
 </details>
